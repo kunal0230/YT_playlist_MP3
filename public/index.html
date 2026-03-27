@@ -1,0 +1,991 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>YTSync | Dashboard</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    /* ═══════ RESET ═══════ */
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    html{font-size:14px;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}
+
+    /* ═══════ DESIGN TOKENS (Stitch: Monolith Precision System) ═══════ */
+    :root{
+      --font-sans:'Inter',system-ui,-apple-system,sans-serif;
+      --font-mono:'JetBrains Mono','SF Mono',monospace;
+      --radius:6px;
+      --radius-lg:8px;
+      --sidebar-w:210px;
+      --topbar-h:52px;
+      --transition:150ms ease;
+    }
+
+    /* ─── Dark Theme ─── */
+    [data-theme="dark"]{
+      --bg:#0e0e10;
+      --surface-low:#131316;
+      --surface:#19191d;
+      --surface-high:#1f1f24;
+      --surface-highest:#25252b;
+      --surface-terminal:#000000;
+      --text-primary:#e7e4ec;
+      --text-secondary:#acaab1;
+      --text-tertiary:#75757c;
+      --text-disabled:#47474e;
+      --border:rgba(71,71,78,0.18);
+      --border-focus:#75757c;
+      --accent-green:#9bffce;
+      --accent-green-dim:rgba(155,255,206,0.10);
+      --accent-red:#ec7c8a;
+      --accent-red-dim:rgba(236,124,138,0.10);
+      --accent-blue:#7cacf8;
+      --accent-blue-dim:rgba(124,172,248,0.10);
+      --accent-amber:#f5c778;
+      --accent-amber-dim:rgba(245,199,120,0.10);
+      --btn-primary-bg:#c6c6c7;
+      --btn-primary-text:#3f4041;
+      --ring-track:rgba(71,71,78,0.3);
+      --ring-fill:#9bffce;
+      --scrollbar:rgba(255,255,255,0.15);
+      --scrollbar-hover:rgba(255,255,255,0.25);
+      --shadow:0 12px 40px rgba(0,0,0,0.5);
+    }
+
+    /* ─── Light Theme ─── */
+    [data-theme="light"]{
+      --bg:#f8f8fa;
+      --surface-low:#ffffff;
+      --surface:#f0f0f4;
+      --surface-high:#e8e8ee;
+      --surface-highest:#ffffff;
+      --surface-terminal:#f4f4f8;
+      --text-primary:#1a1a1e;
+      --text-secondary:#5a5a66;
+      --text-tertiary:#8a8a96;
+      --text-disabled:#c0c0cc;
+      --border:rgba(0,0,0,0.07);
+      --border-focus:#999;
+      --accent-green:#059669;
+      --accent-green-dim:rgba(5,150,105,0.08);
+      --accent-red:#dc2626;
+      --accent-red-dim:rgba(220,38,38,0.06);
+      --accent-blue:#2563eb;
+      --accent-blue-dim:rgba(37,99,235,0.06);
+      --accent-amber:#d97706;
+      --accent-amber-dim:rgba(217,119,6,0.06);
+      --btn-primary-bg:#1a1a1e;
+      --btn-primary-text:#f8f8fa;
+      --ring-track:rgba(0,0,0,0.06);
+      --ring-fill:#059669;
+      --scrollbar:rgba(0,0,0,0.15);
+      --scrollbar-hover:rgba(0,0,0,0.25);
+      --shadow:0 8px 30px rgba(0,0,0,0.08);
+    }
+
+    body{
+      font-family:var(--font-sans);
+      background:var(--bg);
+      color:var(--text-primary);
+      height:100vh;
+      display:flex;
+      overflow:hidden;
+      transition:background var(--transition),color var(--transition);
+    }
+
+    /* ═══════ SIDEBAR ═══════ */
+    .sidebar{
+      width:var(--sidebar-w);
+      height:100vh;
+      background:var(--surface-low);
+      display:flex;
+      flex-direction:column;
+      flex-shrink:0;
+      padding:16px 12px;
+      gap:4px;
+      transition:background var(--transition);
+    }
+
+    .logo{display:flex;align-items:center;gap:8px;padding:4px 8px 16px}
+    .logo-mark{
+      width:26px;height:26px;border-radius:6px;
+      background:var(--text-primary);color:var(--bg);
+      display:flex;align-items:center;justify-content:center;
+      font-weight:700;font-size:12px;
+      transition:background var(--transition),color var(--transition);
+    }
+    .logo-name{font-weight:700;font-size:15px;letter-spacing:-0.02em;color:var(--text-primary)}
+    .logo-ver{
+      font-size:9px;font-weight:600;color:var(--text-tertiary);
+      background:var(--surface-high);padding:2px 6px;border-radius:99px;
+      margin-left:auto;
+      transition:background var(--transition);
+    }
+
+    .nav-label{
+      font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:0.08em;
+      color:var(--text-disabled);padding:12px 8px 4px;
+    }
+
+    .nav-item{
+      display:flex;align-items:center;gap:9px;padding:8px 10px;border-radius:var(--radius);
+      color:var(--text-secondary);font-size:13px;font-weight:500;cursor:pointer;
+      transition:all var(--transition);text-decoration:none;border:none;background:none;
+      font-family:inherit;width:100%;
+    }
+    .nav-item:hover{background:var(--surface);color:var(--text-primary)}
+    .nav-item.active{background:var(--surface);color:var(--text-primary);font-weight:600}
+    .nav-item svg{width:16px;height:16px;opacity:0.55;flex-shrink:0}
+    .nav-item.active svg{opacity:0.85}
+    .nav-badge{
+      margin-left:auto;font-size:10px;font-weight:600;
+      background:var(--surface-high);color:var(--text-tertiary);
+      padding:1px 6px;border-radius:99px;min-width:18px;text-align:center;
+      transition:background var(--transition);
+    }
+
+    .sidebar-spacer{flex:1}
+
+    .conn-row{
+      display:flex;align-items:center;gap:6px;padding:8px;font-size:11px;
+      color:var(--text-tertiary);
+    }
+    .conn-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0}
+    .conn-dot.ok{background:var(--accent-green);box-shadow:0 0 6px var(--accent-green)}
+    .conn-dot.err{background:var(--accent-red);animation:blink 1.2s infinite}
+    @keyframes blink{0%,100%{opacity:1}50%{opacity:0.3}}
+
+    /* ═══════ MAIN ═══════ */
+    .main{flex:1;display:flex;flex-direction:column;overflow:hidden;min-height:0;min-width:0}
+
+    .topbar{
+      height:var(--topbar-h);display:flex;align-items:center;padding:0 24px;
+      border-bottom:1px solid var(--border);flex-shrink:0;gap:12px;
+      transition:border-color var(--transition);
+    }
+    .topbar-title{font-size:14px;font-weight:600;letter-spacing:-0.01em}
+    .topbar-sep{color:var(--text-disabled);font-size:13px}
+    .topbar-crumb{font-size:12px;color:var(--text-tertiary)}
+    .topbar-right{margin-left:auto;display:flex;align-items:center;gap:10px}
+
+    .theme-toggle{
+      background:var(--surface);border:1px solid var(--border);
+      border-radius:var(--radius);padding:5px 8px;cursor:pointer;
+      color:var(--text-secondary);font-size:14px;line-height:1;
+      display:flex;align-items:center;justify-content:center;
+      transition:all var(--transition);
+    }
+    .theme-toggle:hover{background:var(--surface-high);color:var(--text-primary)}
+
+    .chip{
+      display:inline-flex;align-items:center;gap:5px;padding:4px 10px;
+      border-radius:99px;font-size:11px;font-weight:600;text-transform:uppercase;
+      letter-spacing:0.04em;
+    }
+    .chip .dot{width:5px;height:5px;border-radius:50%}
+    .chip-idle{background:var(--surface);color:var(--text-tertiary)}
+    .chip-idle .dot{background:var(--text-disabled)}
+    .chip-downloading,.chip-converting,.chip-fetching{background:var(--accent-blue-dim);color:var(--accent-blue)}
+    .chip-downloading .dot,.chip-converting .dot,.chip-fetching .dot{background:var(--accent-blue);animation:blink 1s infinite}
+    .chip-done{background:var(--accent-green-dim);color:var(--accent-green)}
+    .chip-done .dot{background:var(--accent-green)}
+    .chip-paused{background:var(--accent-amber-dim);color:var(--accent-amber)}
+    .chip-paused .dot{background:var(--accent-amber)}
+    .chip-error{background:var(--accent-red-dim);color:var(--accent-red)}
+    .chip-error .dot{background:var(--accent-red)}
+
+    .content{flex:1;overflow-y:auto;overflow-x:hidden;padding:24px 32px 64px;min-height:0}
+    .content::-webkit-scrollbar{width:8px}
+    .content::-webkit-scrollbar-track{background:transparent}
+    .content::-webkit-scrollbar-thumb{background:var(--scrollbar);border-radius:4px;border:2px solid var(--bg)}
+    .content::-webkit-scrollbar-thumb:hover{background:var(--scrollbar-hover)}
+
+    /* ═══════ SECTIONS ═══════ */
+    .section{margin-bottom:24px}
+    .section-title{
+      font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.07em;
+      color:var(--text-tertiary);margin-bottom:10px;
+    }
+
+    /* ─── Input Card ─── */
+    .input-card{
+      background:var(--surface-low);border-radius:var(--radius-lg);
+      padding:16px 18px;
+      transition:background var(--transition);
+    }
+    .input-row{display:flex;gap:8px}
+    .url-wrap{flex:1;position:relative}
+    .url-wrap svg{position:absolute;left:11px;top:50%;transform:translateY(-50%);color:var(--text-disabled);pointer-events:none;width:14px;height:14px}
+    .url-wrap input{
+      width:100%;background:var(--surface);border:1px solid var(--border);
+      border-radius:var(--radius);padding:9px 12px 9px 34px;color:var(--text-primary);
+      font:13px/1.4 var(--font-mono);outline:none;transition:all var(--transition);
+    }
+    .url-wrap input:focus{border-color:var(--border-focus)}
+    .url-wrap input::placeholder{color:var(--text-disabled);font-family:var(--font-sans)}
+
+    .btn{
+      display:inline-flex;align-items:center;justify-content:center;gap:6px;
+      padding:9px 16px;border-radius:var(--radius);font:600 13px/1 var(--font-sans);
+      border:none;cursor:pointer;transition:all var(--transition);white-space:nowrap;outline:none;
+    }
+    .btn:active{transform:scale(0.97)}
+    .btn:disabled{opacity:0.35;cursor:not-allowed;pointer-events:none}
+
+    .btn-primary{background:var(--btn-primary-bg);color:var(--btn-primary-text)}
+    .btn-primary:hover{opacity:0.88}
+    .btn-stop{background:var(--accent-red-dim);color:var(--accent-red);border:1px solid transparent}
+    .btn-stop:hover{border-color:var(--accent-red)}
+    .btn-resume{background:var(--accent-green-dim);color:var(--accent-green);border:1px solid transparent}
+    .btn-resume:hover{border-color:var(--accent-green)}
+    .btn-ghost{background:transparent;color:var(--text-secondary);border:1px solid var(--border)}
+    .btn-ghost:hover{background:var(--surface);color:var(--text-primary)}
+
+    .opts-toggle{
+      display:inline-flex;align-items:center;gap:5px;font:500 12px var(--font-sans);
+      color:var(--text-tertiary);cursor:pointer;background:none;border:none;
+      margin-top:10px;padding:2px 0;transition:color var(--transition);
+    }
+    .opts-toggle:hover{color:var(--text-secondary)}
+    .opts-toggle svg{transition:transform 0.2s}
+    .opts-toggle.open svg{transform:rotate(180deg)}
+
+    .opts-grid{display:none;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:12px;padding-top:12px;border-top:1px solid var(--border)}
+    .opts-grid.show{display:grid}
+    .opt label{display:block;font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:0.05em;color:var(--text-tertiary);margin-bottom:4px}
+    .opt input,.opt select{
+      width:100%;background:var(--surface);border:1px solid var(--border);
+      border-radius:var(--radius);padding:7px 9px;color:var(--text-primary);
+      font:12px var(--font-sans);outline:none;transition:border-color var(--transition);
+    }
+    .opt input:focus,.opt select:focus{border-color:var(--border-focus)}
+
+    /* ─── Playlist Banner ─── */
+    .pl-banner{
+      display:flex;align-items:center;gap:12px;background:var(--surface-low);
+      border-radius:var(--radius-lg);padding:12px 16px;
+      transition:background var(--transition);
+    }
+    .pl-icon{width:36px;height:36px;border-radius:var(--radius);background:var(--surface-high);display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;transition:background var(--transition)}
+    .pl-info{flex:1;min-width:0}
+    .pl-name{font-size:14px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .pl-sub{font-size:12px;color:var(--text-tertiary);margin-top:1px}
+    .btn-group{display:flex;gap:6px;flex-shrink:0}
+
+    /* ─── Monitor ─── */
+    .monitor{display:grid;grid-template-columns:130px 1fr;gap:20px;align-items:start}
+    .ring-wrap{display:flex;flex-direction:column;align-items:center;gap:4px}
+    .ring-svg{width:120px;height:120px;transform:rotate(-90deg)}
+    .ring-bg{fill:none;stroke:var(--ring-track);stroke-width:7}
+    .ring-fg{fill:none;stroke:var(--ring-fill);stroke-width:7;stroke-linecap:round;transition:stroke-dashoffset 0.5s ease,stroke var(--transition)}
+    .ring-center{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
+    .ring-pct{font-size:24px;font-weight:700;letter-spacing:-0.03em;line-height:1}
+    .ring-label{font-size:9px;font-weight:600;text-transform:uppercase;letter-spacing:0.06em;color:var(--text-tertiary);margin-top:3px}
+    .ring-sub{font-size:11px;color:var(--text-tertiary);font-variant-numeric:tabular-nums}
+    .ring-box{position:relative;width:120px;height:120px}
+
+    .stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+    .stat{
+      background:var(--surface-low);border-radius:var(--radius-lg);padding:14px;
+      transition:background var(--transition);
+    }
+    .stat-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+    .stat-label{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:0.06em;color:var(--text-tertiary)}
+    .stat-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0}
+    .stat-dot.g{background:var(--accent-green)}
+    .stat-dot.r{background:var(--accent-red)}
+    .stat-dot.b{background:var(--accent-blue)}
+    .stat-dot.a{background:var(--accent-amber)}
+    .stat-val{font-size:22px;font-weight:700;letter-spacing:-0.02em;font-variant-numeric:tabular-nums;line-height:1}
+    .stat-val.g{color:var(--accent-green)}
+    .stat-val.r{color:var(--accent-red)}
+    .stat-val.b{color:var(--accent-blue)}
+    .stat-val.a{color:var(--accent-amber)}
+
+    /* ─── Track ─── */
+    .track{
+      background:var(--surface-low);border-radius:var(--radius-lg);padding:14px 16px;
+      transition:background var(--transition);
+    }
+    .track-row{display:flex;align-items:center;gap:12px}
+    .track-icon{
+      width:36px;height:36px;border-radius:var(--radius);background:var(--surface-high);
+      display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;
+      transition:background var(--transition);
+    }
+    .track-info{flex:1;min-width:0}
+    .track-name{font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .track-meta{font-size:11px;color:var(--text-tertiary);margin-top:1px;font-variant-numeric:tabular-nums}
+    .track-bar-outer{margin-top:10px;width:100%;height:3px;background:var(--ring-track);border-radius:99px;overflow:hidden}
+    .track-bar-inner{height:100%;background:var(--ring-fill);border-radius:99px;transition:width 0.35s ease,background var(--transition)}
+    .track-pct{font-size:11px;font-weight:600;color:var(--accent-green);font-variant-numeric:tabular-nums;flex-shrink:0}
+    [data-theme="light"] .track-pct{color:var(--accent-green)}
+
+    /* ─── Logs ─── */
+    .log-card{background:var(--surface-terminal);border-radius:var(--radius-lg);overflow:hidden;transition:background var(--transition)}
+    .log-bar{
+      display:flex;align-items:center;padding:8px 14px;gap:8px;
+      border-bottom:1px solid var(--border);
+      transition:border-color var(--transition);
+    }
+    .log-bar-title{
+      font-size:12px;font-weight:600;color:var(--text-secondary);
+      display:flex;align-items:center;gap:6px;
+    }
+    .log-dot{width:7px;height:7px;border-radius:50%;background:var(--accent-green)}
+    .log-bar-right{margin-left:auto;display:flex;align-items:center;gap:8px}
+    .log-clear{
+      background:none;border:1px solid var(--border);border-radius:var(--radius);
+      color:var(--text-tertiary);font:500 11px var(--font-sans);padding:3px 8px;
+      cursor:pointer;transition:all var(--transition);
+    }
+    .log-clear:hover{color:var(--text-secondary);border-color:var(--border-focus)}
+    .scroll-label{
+      display:flex;align-items:center;gap:4px;font-size:11px;color:var(--text-tertiary);
+      cursor:pointer;user-select:none;
+    }
+    .scroll-label input{accent-color:var(--accent-green);margin:0;cursor:pointer}
+
+    .log-body{
+      max-height:240px;overflow-y:auto;padding:8px 0;
+      font:12px/1.7 var(--font-mono);scroll-behavior:smooth;
+    }
+    .log-body::-webkit-scrollbar{width:4px}
+    .log-body::-webkit-scrollbar-track{background:transparent}
+    .log-body::-webkit-scrollbar-thumb{background:var(--scrollbar);border-radius:2px}
+
+    .ll{padding:0 14px;white-space:pre-wrap;word-break:break-all}
+    .ll:hover{background:var(--surface-low)}
+    .lt{color:var(--text-disabled);margin-right:8px;user-select:none}
+    .ll.step .lm{color:var(--accent-blue)}
+    .ll.success .lm{color:var(--accent-green)}
+    .ll.warn .lm{color:var(--accent-amber)}
+    .ll.error .lm{color:var(--accent-red)}
+    .ll.info .lm{color:var(--text-secondary)}
+    .ll.dim .lm{color:var(--text-disabled)}
+
+    .log-empty{padding:24px 14px;text-align:center;color:var(--text-disabled);font:13px var(--font-sans)}
+
+    .hidden{display:none!important}
+
+    /* ─── Page Views ─── */
+    .page{display:none}
+    .page.active{display:block}
+
+    /* ─── Downloads View ─── */
+    .dl-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
+    .dl-header h2{font-size:14px;font-weight:600}
+    .dl-count{font-size:12px;color:var(--text-tertiary)}
+    .dl-list{display:flex;flex-direction:column;gap:16px}
+    
+    .dl-group{}
+    .dl-group-title{
+      font-size:12px;font-weight:600;display:flex;align-items:center;gap:6px;
+      padding:6px 0;border-bottom:1px solid var(--border);margin-bottom:8px;
+    }
+    .dl-group-badge{
+      background:var(--surface);color:var(--text-tertiary);font-size:9px;
+      padding:2px 6px;border-radius:99px;font-weight:700;
+    }
+    .dl-group-items{display:flex;flex-direction:column;gap:2px}
+    
+    .dl-item{
+      display:flex;align-items:center;gap:12px;padding:10px 14px;
+      background:var(--surface-low);border-radius:var(--radius);transition:background var(--transition);
+    }
+    .dl-item:hover{background:var(--surface)}
+    .dl-icon{width:32px;height:32px;border-radius:var(--radius);background:var(--surface-high);display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0;transition:background var(--transition)}
+    .dl-info{flex:1;min-width:0}
+    .dl-name{font-size:13px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .dl-meta{font-size:11px;color:var(--text-tertiary);margin-top:1px}
+    .dl-path{font-family:var(--font-mono);opacity:0.6}
+    .dl-empty{text-align:center;padding:48px 24px;color:var(--text-disabled);font-size:13px}
+
+    /* ─── Settings View ─── */
+    .settings-group{margin-bottom:24px}
+    .settings-group-title{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.07em;color:var(--text-tertiary);margin-bottom:10px}
+    .settings-card{background:var(--surface-low);border-radius:var(--radius-lg);padding:16px 18px;transition:background var(--transition)}
+    .settings-row{
+      display:flex;align-items:center;justify-content:space-between;padding:10px 0;
+    }
+    .settings-row + .settings-row{border-top:1px solid var(--border)}
+    .settings-row-label{font-size:13px;font-weight:500}
+    .settings-row-desc{font-size:11px;color:var(--text-tertiary);margin-top:1px}
+    .settings-row-right{flex-shrink:0;display:flex;align-items:center;gap:8px}
+    .settings-row-right select,.settings-row-right input{
+      background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);
+      padding:6px 10px;color:var(--text-primary);font:12px var(--font-sans);outline:none;
+      transition:border-color var(--transition);
+    }
+    .settings-row-right select:focus,.settings-row-right input:focus{border-color:var(--border-focus)}
+    .toggle-switch{position:relative;width:36px;height:20px;cursor:pointer}
+    .toggle-switch input{display:none}
+    .toggle-track{
+      position:absolute;inset:0;border-radius:99px;background:var(--surface-high);
+      transition:background var(--transition);
+    }
+    .toggle-knob{
+      position:absolute;top:2px;left:2px;width:16px;height:16px;border-radius:50%;
+      background:var(--text-secondary);transition:all var(--transition);
+    }
+    .toggle-switch input:checked~.toggle-track{background:var(--accent-green)}
+    .toggle-switch input:checked~.toggle-knob{left:18px;background:#fff}
+    .path-display{
+      font:12px var(--font-mono);color:var(--text-secondary);
+      background:var(--surface);padding:6px 10px;border-radius:var(--radius);
+      max-width:360px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+    }
+
+    @media(max-width:860px){
+      .sidebar{display:none}
+      .stats{grid-template-columns:repeat(2,1fr)}
+      .monitor{grid-template-columns:1fr}
+      .opts-grid{grid-template-columns:repeat(2,1fr)}
+    }
+  </style>
+</head>
+<body>
+
+<!-- ═══════ SIDEBAR ═══════ -->
+<aside class="sidebar">
+  <div class="logo">
+    <div class="logo-mark">▶</div>
+    <span class="logo-name">YTSync</span>
+    <span class="logo-ver">v1.0</span>
+  </div>
+
+  <div class="nav-label">Navigation</div>
+  <button class="nav-item active" data-page="dashboard" onclick="switchPage('dashboard')">
+    <svg fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-4 0a1 1 0 01-1-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 01-1 1h-2z"/></svg>
+    Dashboard
+  </button>
+  <button class="nav-item" data-page="downloads" onclick="switchPage('downloads')">
+    <svg fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+    Downloads
+    <span class="nav-badge" id="navCount">0</span>
+  </button>
+  <button class="nav-item" data-page="settings" onclick="switchPage('settings')">
+    <svg fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.066 2.573c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.573 1.066c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.066-2.573c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.573-1.066z"/><circle cx="12" cy="12" r="3"/></svg>
+    Settings
+  </button>
+
+  <div class="sidebar-spacer"></div>
+
+  <div class="conn-row">
+    <span class="conn-dot err" id="cDot"></span>
+    <span id="cLabel">Connecting…</span>
+  </div>
+</aside>
+
+<!-- ═══════ MAIN ═══════ -->
+<main class="main">
+  <header class="topbar">
+    <span class="topbar-title" id="topTitle">Convert Playlist</span>
+    <span class="topbar-sep">·</span>
+    <span class="topbar-crumb" id="topCrumb">Dashboard</span>
+    <div class="topbar-right">
+      <span id="elapsed" style="font:500 12px/1 var(--font-mono);color:var(--text-tertiary)"></span>
+      <button class="theme-toggle" id="themeBtn" onclick="toggleTheme()" title="Toggle theme">☀</button>
+      <div class="chip chip-idle" id="chip"><span class="dot"></span><span id="chipText">Idle</span></div>
+    </div>
+  </header>
+
+  <div class="content">
+
+    <!-- ════════ PAGE: DASHBOARD ════════ -->
+    <div class="page active" id="page-dashboard">
+
+      <!-- ─── URL Input ─── -->
+      <div class="section">
+        <div class="section-title">Sync New Playlist</div>
+        <div class="input-card">
+          <div class="input-row">
+            <div class="url-wrap">
+              <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"/></svg>
+              <input type="text" id="urlInput" placeholder="https://youtube.com/playlist?list=…" autocomplete="off" spellcheck="false">
+            </div>
+            <button class="btn btn-primary" id="fetchBtn" onclick="fetchInfo()">Sync Playlist</button>
+          </div>
+          <button class="opts-toggle" id="oToggle" onclick="toggleOpts()">
+            <svg width="11" height="11" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M19 9l-7 7-7-7"/></svg>
+            Advanced options
+          </button>
+          <div class="opts-grid" id="oGrid">
+            <div class="opt"><label>Quality</label><select id="oQ"><option value="0" selected>Best (~245 kbps)</option><option value="2">High (~190 kbps)</option><option value="5">Medium (~130 kbps)</option><option value="9">Low (~65 kbps)</option></select></div>
+            <div class="opt"><label>Speed Limit</label><select id="oR"><option value="1M">1 MB/s</option><option value="2M" selected>2 MB/s</option><option value="5M">5 MB/s</option><option value="10M">10 MB/s</option><option value="0">No limit</option></select></div>
+            <div class="opt"><label>Start From</label><input type="number" id="oS" placeholder="1" min="1"></div>
+            <div class="opt"><label>End At</label><input type="number" id="oE" placeholder="e.g. 100" min="1"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ─── Playlist Banner ─── -->
+      <div class="section hidden" id="plSec">
+        <div class="pl-banner">
+          <div class="pl-icon">📋</div>
+          <div class="pl-info">
+            <div class="pl-name" id="plName">—</div>
+            <div class="pl-sub" id="plSub">—</div>
+          </div>
+          <div class="btn-group">
+            <button class="btn btn-primary" id="goBtn" onclick="startDL()">Start</button>
+            <button class="btn btn-stop hidden" id="stopBtn" onclick="stopDL()">Stop</button>
+            <button class="btn btn-resume hidden" id="resBtn" onclick="startDL()">Resume</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ─── Monitor ─── -->
+      <div class="section hidden" id="monSec">
+        <div class="section-title">Download Monitor</div>
+        <div class="monitor">
+          <div class="ring-wrap">
+            <div class="ring-box">
+              <svg class="ring-svg" viewBox="0 0 120 120">
+                <circle class="ring-bg" cx="60" cy="60" r="50"/>
+                <circle class="ring-fg" id="ringFg" cx="60" cy="60" r="50" stroke-dasharray="314.16" stroke-dashoffset="314.16"/>
+              </svg>
+              <div class="ring-center">
+                <span class="ring-pct" id="rPct">0%</span>
+                <span class="ring-label">Overall</span>
+              </div>
+            </div>
+            <span class="ring-sub" id="rSub">0 / 0</span>
+          </div>
+          <div class="stats">
+            <div class="stat"><div class="stat-head"><span class="stat-label">Downloaded</span><span class="stat-dot g"></span></div><div class="stat-val g" id="sDown">0</div></div>
+            <div class="stat"><div class="stat-head"><span class="stat-label">Failed</span><span class="stat-dot r"></span></div><div class="stat-val r" id="sFail">0</div></div>
+            <div class="stat"><div class="stat-head"><span class="stat-label">Remaining</span><span class="stat-dot b"></span></div><div class="stat-val b" id="sRem">0</div></div>
+            <div class="stat"><div class="stat-head"><span class="stat-label">Speed</span><span class="stat-dot b"></span></div><div class="stat-val" id="sSpd">—</div></div>
+            <div class="stat"><div class="stat-head"><span class="stat-label">Elapsed</span><span class="stat-dot a"></span></div><div class="stat-val a" id="sElap">0m 0s</div></div>
+            <div class="stat"><div class="stat-head"><span class="stat-label">ETA</span><span class="stat-dot b"></span></div><div class="stat-val" id="sEta">—</div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ─── Track ─── -->
+      <div class="section hidden" id="trkSec">
+        <div class="section-title">Currently Processing</div>
+        <div class="track">
+          <div class="track-row">
+            <div class="track-icon" id="tIcon">🎵</div>
+            <div class="track-info">
+              <div class="track-name" id="tName">Waiting…</div>
+              <div class="track-meta" id="tMeta">—</div>
+            </div>
+            <span class="track-pct" id="tPct">0%</span>
+          </div>
+          <div class="track-bar-outer"><div class="track-bar-inner" id="tBar" style="width:0%"></div></div>
+        </div>
+      </div>
+
+      <!-- ─── Logs ─── -->
+      <div class="section hidden" id="logSec">
+        <div class="section-title">Real-time Activity Log</div>
+        <div class="log-card">
+          <div class="log-bar">
+            <div class="log-bar-title"><span class="log-dot"></span>Terminal</div>
+            <div class="log-bar-right">
+              <button class="log-clear" onclick="clearLogs()">Clear</button>
+              <label class="scroll-label"><input type="checkbox" id="autoScr" checked> Auto-scroll</label>
+            </div>
+          </div>
+          <div class="log-body" id="logBody"><div class="log-empty">Logs will appear here when a download starts.</div></div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- ════════ PAGE: DOWNLOADS ════════ -->
+    <div class="page" id="page-downloads">
+      <div class="dl-header">
+        <h2>Downloaded Files</h2>
+        <span class="dl-count" id="dlCount">0 files</span>
+      </div>
+      <div class="dl-list" id="dlList">
+        <div class="dl-empty">No MP3 files found yet. Start a download from the Dashboard.</div>
+      </div>
+    </div>
+
+    <!-- ════════ PAGE: SETTINGS ════════ -->
+    <div class="page" id="page-settings">
+
+      <div class="settings-group">
+        <div class="settings-group-title">Appearance</div>
+        <div class="settings-card">
+          <div class="settings-row">
+            <div>
+              <div class="settings-row-label">Dark Mode</div>
+              <div class="settings-row-desc">Switch between light and dark themes</div>
+            </div>
+            <div class="settings-row-right">
+              <label class="toggle-switch">
+                <input type="checkbox" id="settingsDarkMode" onchange="toggleTheme()" checked>
+                <span class="toggle-track"></span>
+                <span class="toggle-knob"></span>
+              </label>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="settings-group">
+        <div class="settings-group-title">Storage & Location</div>
+        <div class="settings-card">
+          <div class="settings-row">
+            <div>
+              <div class="settings-row-label">Download Directory</div>
+              <div class="settings-row-desc">Location where playlists and MP3 files are saved</div>
+            </div>
+            <div class="settings-row-right">
+              <div class="path-display" id="setPath" title="Loading...">Loading...</div>
+              <button class="btn btn-ghost" id="changePathBtn" style="padding:5px 10px;font-size:11px" onclick="pickFolder()">Change</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="settings-group">
+        <div class="settings-group-title">Download Defaults</div>
+        <div class="settings-card">
+          <div class="settings-row">
+            <div>
+              <div class="settings-row-label">Audio Quality</div>
+              <div class="settings-row-desc">Default quality for new downloads</div>
+            </div>
+            <div class="settings-row-right">
+              <select id="setQ" onchange="$('oQ').value=this.value">
+                <option value="0" selected>Best (~245 kbps)</option>
+                <option value="2">High (~190 kbps)</option>
+                <option value="5">Medium (~130 kbps)</option>
+                <option value="9">Low (~65 kbps)</option>
+              </select>
+            </div>
+          </div>
+          <div class="settings-row">
+            <div>
+              <div class="settings-row-label">Speed Limit</div>
+              <div class="settings-row-desc">Maximum download speed per file</div>
+            </div>
+            <div class="settings-row-right">
+              <select id="setR" onchange="$('oR').value=this.value">
+                <option value="1M">1 MB/s</option>
+                <option value="2M" selected>2 MB/s</option>
+                <option value="5M">5 MB/s</option>
+                <option value="10M">10 MB/s</option>
+                <option value="0">No limit</option>
+              </select>
+            </div>
+          </div>
+          <div class="settings-row">
+            <div>
+              <div class="settings-row-label">Auto-scroll Logs</div>
+              <div class="settings-row-desc">Automatically scroll log viewer to latest entries</div>
+            </div>
+            <div class="settings-row-right">
+              <label class="toggle-switch">
+                <input type="checkbox" id="setAutoScroll" checked onchange="$('autoScr').checked=this.checked">
+                <span class="toggle-track"></span>
+                <span class="toggle-knob"></span>
+              </label>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="settings-group">
+        <div class="settings-group-title">Data Management</div>
+        <div class="settings-card">
+          <div class="settings-row">
+            <div>
+              <div class="settings-row-label" style="color:var(--accent-red)">Clear App Data</div>
+              <div class="settings-row-desc">Resets progress, logs, and internal cache. Keeps your downloaded MP3s safe.</div>
+            </div>
+            <div class="settings-row-right">
+              <button class="btn btn-stop" style="padding:5px 10px;font-size:11px" onclick="clearCache(this)">Clear Data</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="settings-group">
+        <div class="settings-group-title">About</div>
+        <div class="settings-card">
+          <div class="settings-row">
+            <div>
+              <div class="settings-row-label">YTSync</div>
+              <div class="settings-row-desc">v1.0 — YouTube Playlist to MP3 converter</div>
+            </div>
+          </div>
+          <div class="settings-row">
+            <div>
+              <div class="settings-row-label">Engine</div>
+              <div class="settings-row-desc">yt-dlp + ffmpeg</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+</main>
+
+<script>
+const CIRC=2*Math.PI*50; // ring circumference
+let ws,app={},startT,eTimer,lc=0;
+
+/* ── WebSocket ── */
+function connect(){
+  const p=location.protocol==='https:'?'wss':'ws';
+  ws=new WebSocket(`${p}://${location.host}`);
+  ws.onopen=()=>{$('cDot').className='conn-dot ok';$('cLabel').textContent='Connected'};
+  ws.onclose=()=>{$('cDot').className='conn-dot err';$('cLabel').textContent='Reconnecting…';setTimeout(connect,2000)};
+  ws.onmessage=e=>{const m=JSON.parse(e.data);if(m.event==='state')ui(m.data);if(m.event==='log')addLog(m.data)};
+}
+
+function $(id){return document.getElementById(id)}
+function show(id){$(id).classList.remove('hidden')}
+function hide(id){$(id).classList.add('hidden')}
+
+/* ── UI Update ── */
+function ui(d){
+  app=d;
+  const run=['downloading','converting'].includes(d.status);
+  const active=['downloading','converting','fetching','paused','done','error'].includes(d.status);
+
+  if(d.playlistTitle){show('plSec');$('plName').textContent=d.playlistTitle;$('plSub').textContent=`${d.totalVideos} tracks · ${d.downloaded} completed`}
+  if(active||d.downloaded>0){show('monSec');show('trkSec');show('logSec')}
+
+  // buttons
+  if(run){hide('goBtn');show('stopBtn');hide('resBtn')}
+  else if(d.status==='paused'||d.status==='done'){hide('goBtn');hide('stopBtn');show('resBtn')}
+  else{show('goBtn');hide('stopBtn');hide('resBtn')}
+
+  // chip
+  const ch=$('chip'),labels={idle:'Idle',fetching:'Fetching',downloading:'Downloading',converting:'Converting',paused:'Paused',done:'Complete',error:'Error'};
+  ch.className=`chip chip-${d.status}`;$('chipText').textContent=labels[d.status]||d.status;
+
+  // stats
+  const rem=Math.max(0,d.totalVideos-d.downloaded);
+  $('sDown').textContent=d.downloaded;$('sFail').textContent=d.failed;$('sRem').textContent=rem;
+  $('sSpd').textContent=d.speed||'—';$('sEta').textContent=d.eta||'—';$('navCount').textContent=d.downloaded;
+
+  // ring
+  const pct=d.totalVideos>0?Math.round(d.downloaded/d.totalVideos*100):0;
+  $('rPct').textContent=pct+'%';$('rSub').textContent=`${d.downloaded} / ${d.totalVideos}`;
+  $('ringFg').style.strokeDashoffset=CIRC-(pct/100)*CIRC;
+
+  // track
+  $('tName').textContent=d.currentTitle||'Waiting…';
+  const meta=[];if(d.currentIndex)meta.push(`Track ${d.currentIndex} of ${d.totalVideos}`);if(d.speed)meta.push(d.speed);if(d.eta)meta.push('ETA '+d.eta);
+  $('tMeta').textContent=meta.join(' · ')||'—';
+  $('tPct').textContent=Math.round(d.currentProgress)+'%';
+  $('tBar').style.width=d.currentProgress+'%';
+  $('tIcon').textContent=run?'🎧':d.status==='done'?'✅':'🎵';
+
+  // timer
+  if(run&&d.startTime&&!eTimer){startT=d.startTime;eTimer=setInterval(tick,1000);tick()}
+  else if(!run&&eTimer){clearInterval(eTimer);eTimer=null}
+
+  $('urlInput').disabled=run;$('fetchBtn').disabled=run;
+}
+
+function tick(){
+  if(!startT)return;const s=Math.floor((Date.now()-startT)/1000),h=Math.floor(s/3600),m=Math.floor(s%3600/60),sec=s%60;
+  let t='';if(h)t+=h+'h ';t+=m+'m '+sec+'s';$('sElap').textContent=t;$('elapsed').textContent=t;
+}
+
+/* ── Logs ── */
+function addLog(e){
+  const b=$('logBody'),emp=b.querySelector('.log-empty');if(emp)emp.remove();
+  const l=document.createElement('div');l.className='ll '+e.type;
+  const t=new Date(e.time),ts=[t.getHours(),t.getMinutes(),t.getSeconds()].map(n=>String(n).padStart(2,'0')).join(':');
+  l.innerHTML=`<span class="lt">${ts}</span><span class="lm">${esc(e.text)}</span>`;
+  b.appendChild(l);lc++;while(b.children.length>600)b.removeChild(b.firstChild);
+  if($('autoScr').checked)b.scrollTop=b.scrollHeight;
+}
+function clearLogs(){$('logBody').innerHTML='<div class="log-empty">Cleared.</div>';lc=0}
+function esc(s){const d=document.createElement('div');d.textContent=s;return d.innerHTML}
+
+/* ── API ── */
+async function fetchInfo(){
+  const u=$('urlInput').value.trim();if(!u)return;
+  $('fetchBtn').disabled=true;$('fetchBtn').textContent='Syncing…';
+  try{const r=await fetch('/api/fetch-info',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({url:u})});const d=await r.json();if(!r.ok)throw new Error(d.error)}
+  catch(e){alert(e.message)}finally{$('fetchBtn').disabled=false;$('fetchBtn').textContent='Sync Playlist'}
+}
+
+async function startDL(){
+  const u=$('urlInput').value.trim();if(!u)return;
+  try{const r=await fetch('/api/start',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({url:u,quality:+$('oQ').value,rateLimit:$('oR').value,startRange:$('oS').value||undefined,endRange:$('oE').value||undefined})});const d=await r.json();if(!r.ok)throw new Error(d.error)}
+  catch(e){alert(e.message)}
+}
+
+async function stopDL(){try{await fetch('/api/stop',{method:'POST'})}catch(e){alert(e.message)}}
+
+function toggleOpts(){$('oGrid').classList.toggle('show');$('oToggle').classList.toggle('open')}
+
+/* ── Theme ── */
+function toggleTheme(){
+  const cur=document.documentElement.getAttribute('data-theme');
+  const t=cur==='dark'?'light':'dark';
+  document.documentElement.setAttribute('data-theme',t);
+  $('themeBtn').textContent=t==='dark'?'☀':'☾';
+  $('settingsDarkMode').checked=t==='dark';
+  localStorage.setItem('ytsync-theme',t);
+}
+(function initTheme(){
+  const saved=localStorage.getItem('ytsync-theme');
+  if(saved){
+    document.documentElement.setAttribute('data-theme',saved);
+    $('themeBtn').textContent=saved==='dark'?'☀':'☾';
+    $('settingsDarkMode').checked=saved==='dark';
+  }
+})();
+
+/* ── Page Navigation ── */
+const pageTitles={dashboard:'Convert Playlist',downloads:'Downloads',settings:'Settings'};
+const pageCrumbs={dashboard:'Dashboard',downloads:'Downloads',settings:'Settings'};
+
+function switchPage(name){
+  // toggle page visibility
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  const target=$('page-'+name);
+  if(target) target.classList.add('active');
+
+  // nav active state
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  const navBtn=document.querySelector(`.nav-item[data-page="${name}"]`);
+  if(navBtn) navBtn.classList.add('active');
+
+  // topbar
+  $('topTitle').textContent=pageTitles[name]||name;
+  $('topCrumb').textContent=pageCrumbs[name]||name;
+
+  // load data for downloads page
+  if(name==='downloads') loadFiles();
+}
+
+/* ── Downloads Page ── */
+function fmtSize(bytes){
+  if(bytes<1024)return bytes+' B';
+  if(bytes<1048576)return (bytes/1024).toFixed(1)+' KB';
+  return (bytes/1048576).toFixed(1)+' MB';
+}
+
+async function loadFiles(){
+  try{
+    const res=await fetch('/api/files');
+    const folders=await res.json();
+    const list=$('dlList');
+    
+    let totalFiles = 0;
+    folders.forEach(f => totalFiles += f.files.length);
+    $('dlCount').textContent = totalFiles + ' file' + (totalFiles !== 1 ? 's' : '');
+    
+    if(!folders.length){
+      list.innerHTML='<div class="dl-empty">No MP3 files found yet. Start a download from the Dashboard.</div>';
+      return;
+    }
+    
+    list.innerHTML = folders.map(group => {
+      const items = group.files.map(f => {
+        const d = new Date(f.modified);
+        const when = d.toLocaleDateString()+' '+d.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
+        return `<div class="dl-item">
+          <div class="dl-icon">🎵</div>
+          <div class="dl-info">
+            <div class="dl-name">${esc(f.name)}</div>
+            <div class="dl-meta">${fmtSize(f.size)} · ${when}</div>
+          </div>
+        </div>`;
+      }).join('');
+      
+      return `<div class="dl-group">
+        <div class="dl-group-title">
+          <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"/></svg>
+          ${esc(group.name)} <span class="dl-group-badge">${group.files.length}</span>
+        </div>
+        <div class="dl-group-items">${items}</div>
+      </div>`;
+    }).join('');
+    
+  }catch(e){console.error('Failed to load files',e)}
+}
+
+/* ── Settings API ── */
+async function loadSettings() {
+  try {
+    const res = await fetch('/api/settings');
+    const set = await res.json();
+    $('setPath').textContent = set.downloadDir;
+    $('setPath').title = set.downloadDir;
+  } catch(e) {}
+}
+
+async function pickFolder() {
+  const btn = $('changePathBtn');
+  btn.disabled = true;
+  btn.textContent = 'Selecting…';
+  
+  try {
+    const res = await fetch('/api/pick-folder', { method: 'POST' });
+    if (!res.ok) {
+      if (res.status !== 400) throw new Error('Failed to pick folder');
+      // If 400, user likely cancelled the native dialog, ignore.
+      return; 
+    }
+    await loadSettings();
+    if (document.getElementById('page-downloads').classList.contains('active')) {
+      loadFiles();
+    }
+  } catch (e) {
+    alert('Error selecting folder: ' + e.message);
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'Change';
+  }
+}
+
+async function clearCache(btn) {
+  if (btn.textContent !== 'Confirm Clear') {
+    const orig = btn.textContent;
+    btn.textContent = 'Confirm Clear';
+    btn.style.background = 'var(--accent-red)';
+    btn.style.color = 'var(--bg)';
+    setTimeout(() => {
+      if (btn.textContent === 'Confirm Clear') {
+        btn.textContent = orig;
+        btn.style.background = '';
+        btn.style.color = '';
+      }
+    }, 3000);
+    return;
+  }
+  
+  btn.disabled = true;
+  btn.textContent = 'Clearing…';
+  btn.style.background = '';
+  btn.style.color = '';
+  
+  try {
+    const res = await fetch('/api/cache', { method: 'DELETE' });
+    const d = await res.json();
+    if (!res.ok) throw new Error(d.error);
+    btn.textContent = 'Cleared!';
+    setTimeout(() => location.reload(), 600);
+  } catch (e) {
+    alert('Error: ' + e.message);
+    btn.disabled = false;
+    btn.textContent = 'Clear Data';
+  }
+}
+
+$('urlInput').addEventListener('keydown',e=>{if(e.key==='Enter')fetchInfo()});
+loadSettings();
+connect();
+</script>
+</body>
+</html>

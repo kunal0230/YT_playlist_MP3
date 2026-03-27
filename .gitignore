@@ -1,0 +1,10 @@
+node_modules/
+.DS_Store
+.yt-mp3-data/
+*.mp3
+*.webm
+*.webp
+*.m4a
+*.mp4
+Favorites/
+Namsmaran/
