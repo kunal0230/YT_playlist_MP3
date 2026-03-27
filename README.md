@@ -38,8 +38,8 @@ All three should print version numbers, not errors.
 ## Installation
 
 ```bash
-git clone <repo-url>
-cd ytsync
+git clone https://github.com/kunal0230/YT_playlist_MP3.git
+cd YT_playlist_MP3
 npm install
 ```
 
@@ -161,7 +161,7 @@ Check Settings → Storage & Location to confirm the output path. Make sure the 
 ## File Layout
 
 ```
-ytsync/
+YT_playlist_MP3/
 ├── server.js
 ├── public/
 │   └── index.html
