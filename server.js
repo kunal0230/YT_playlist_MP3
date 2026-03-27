@@ -107,10 +107,11 @@ app.post('/api/fetch-info', async (req, res) => {
   addLog(`Fetching playlist info for: ${url}`, 'step');
 
   try {
-    const result = execSync(
-      `yt-dlp --flat-playlist -J "${url}"`,
+    const result = require('child_process').spawnSync(
+      'yt-dlp',
+      ['--flat-playlist', '-J', url],
       { timeout: 60000, maxBuffer: 50 * 1024 * 1024 }
-    ).toString();
+    ).stdout.toString();
     const data = JSON.parse(result);
 
     const playlistId = getPlaylistId(url);
@@ -155,7 +156,7 @@ app.post('/api/start', (req, res) => {
     return res.status(409).json({ error: 'Download already in progress' });
   }
 
-  const { url, quality = 0, rateLimit = '2M', concurrent = 4, sleepMin = 3, sleepMax = 8, startRange, endRange } = req.body;
+  const { url, startRange, endRange, quality, rateLimit, browserCookie } = req.body;
   if (!url) return res.status(400).json({ error: 'URL required' });
 
   const playlistId = getPlaylistId(url);
@@ -177,13 +178,30 @@ app.post('/api/start', (req, res) => {
   state.downloaded = getArchiveCount();
   state.skipped = state.downloaded;
 
+  const dlQuality = (quality !== undefined) ? quality : (settings.audioQuality || 0);
+  const dlRate = (rateLimit !== undefined) ? rateLimit : (settings.speedLimit || '2M');
+  const concurrent = settings.concurrent || 4;
+  const sleepMin = settings.sleepMin || 3;
+  const sleepMax = settings.sleepMax || 8;
+
   const args = [
+    '-f', 'bestaudio',
     '-x', '--audio-format', 'mp3',
-    '--audio-quality', String(quality),
+    '--audio-quality', String(dlQuality),
     '--yes-playlist',
     '--no-abort-on-error',
-    '--concurrent-fragments', String(concurrent),
-    '--limit-rate', rateLimit,
+    '--concurrent-fragments', String(concurrent)
+  ];
+
+  if (dlRate && dlRate !== '0' && Number(dlRate.replace('M','')) > 0) {
+    args.push('--limit-rate', dlRate);
+  }
+
+  if (browserCookie && browserCookie !== 'none') {
+    args.push('--cookies-from-browser', browserCookie);
+  }
+
+  args.push(
     '--sleep-interval', String(sleepMin),
     '--max-sleep-interval', String(sleepMax),
     '--sleep-requests', '1',
@@ -198,8 +216,8 @@ app.post('/api/start', (req, res) => {
     '--parse-metadata', '%(uploader)s:%(meta_artist)s',
     '--progress',
     '--newline',
-    '-o', path.join(settings.downloadDir, '%(playlist_title)s/%(playlist_index)s - %(title)s.%(ext)s'),
-  ];
+    '-o', path.join(settings.downloadDir, '%(playlist_title)s/%(playlist_index)s - %(title)s.%(ext)s')
+  );
 
   if (startRange) args.push('--playlist-start', String(startRange));
   if (endRange) args.push('--playlist-end', String(endRange));
@@ -221,15 +239,7 @@ app.post('/api/start', (req, res) => {
 
   proc.stderr.on('data', (chunk) => {
     const lines = chunk.toString().split('\n').filter(Boolean);
-    lines.forEach(line => {
-      addLog(line, line.toLowerCase().includes('error') ? 'error' : 'warn');
-      // Detect errors for specific videos
-      if (line.includes('ERROR:')) {
-        state.failed++;
-        state.failedVideos.push(line);
-        broadcastState();
-      }
-    });
+    lines.forEach(line => parseLine(line));
   });
 
   proc.on('close', (code) => {
@@ -463,12 +473,29 @@ function parseLine(line) {
     return;
   }
 
-  // [download] file has already been downloaded
   if (line.includes('has already been recorded in the archive') || line.includes('has already been downloaded')) {
-    state.downloaded = getArchiveCount();
+    state.skipped++;
     addLog(line, 'dim');
     broadcastState();
     return;
+  }
+
+  // Handle ERROR messages
+  if (line.includes('ERROR:')) {
+    const errorMatch = line.match(/ERROR:\s*(?:\[youtube\]\s*)?([^:]+):\s*(.*)/);
+    if (errorMatch) {
+      const vid = errorMatch[1].trim();
+      const reason = errorMatch[2].trim();
+      // Avoid pushing duplicates
+      if (!state.failedVideos.find(f => f.id === vid)) {
+        state.failedVideos.push({ id: vid, reason });
+        state.failed++;
+      }
+    } else {
+      // Fallback if match fails
+      state.failed++;
+    }
+    broadcastState();
   }
 
   // Finished downloading

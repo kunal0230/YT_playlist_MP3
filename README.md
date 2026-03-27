@@ -1,81 +1,83 @@
-# YTSync - YouTube Playlist to MP3 Converter
+#  YTSync - YouTube Playlist to MP3 Converter
 
-## Overview
-YTSync is a professional, robust web-based dashboard and backend engine designed for downloading YouTube playlists and converting them reliably to high-quality MP3 audio. It was built to handle large-scale playlists (500+ videos) with automatic resume, retry mechanisms, rate-limit handling, and connection drop safety.
+Welcome to **YTSync**! This tool helps you easily download entire YouTube playlists and convert them into high-quality MP3 audio files. It is designed to be simple, fast, and safe—even for playlists with hundreds of videos!
 
-## Features
-- **Robust Downloader Engine:** Powered by `yt-dlp` and `ffmpeg`.
-- **Cross-Platform Compatibility:** Runs seamlessly on macOS, Windows, and Linux.
-- **Fail-Safe Processing:** Automatic tracking of completed files. If the process is halted, it will resume exactly where it left off without re-downloading files.
-- **Web Dashboard:** Real-time monitoring of download progress, speeds, ETAs, and terminal-level log output via WebSockets.
-- **Native Folder Picker:** Allows users to select output directories using the operating system's native folder selection dialog (macOS and Windows supported).
-- **Data Management:** Built-in settings cache clearing capability to reset UI views while preserving downloaded MP3s.
+---
 
-## Prerequisites
-Before running YTSync, ensure that the following dependencies are installed on your system and accessible via your system's PATH.
+##  What makes YTSync great?
+- **Easy Dashboard:** A beautiful, real-time website interface that shows you exactly what's downloading.
+- **Smart Resume:** If you lose your internet connection or accidentally close the app, YTSync remembers where it stopped. It will never download the same song twice!
+- **Download anywhere:** Click a button to choose exactly which folder on your computer you want the music saved to.
+- **Safe from blocks:** It pauses automatically between downloads so YouTube doesn't block you.
 
-### 1. Node.js (Runtime)
-Required to run the web server and dashboard.
-- Download from: https://nodejs.org
-- Verify installation:
-  ```bash
-  node -v
-  npm -v
-  ```
+---
 
-### 2. yt-dlp (Downloader Engine)
-Required to fetch media streams from YouTube.
-- **macOS:** `brew install yt-dlp`
-- **Windows:** Download the `.exe` from the official repository and add it to your PATH, or use `winget install yt-dlp`.
-- Verify installation:
-  ```bash
-  yt-dlp --version
-  ```
+##  Step 1: Install the Requirements
+Before using YTSync, we need to quickly set up three helper tools on your computer. You only need to do this once!
 
-### 3. FFmpeg (Audio Converter)
-Required to extract and convert the media streams to MP3.
-- **macOS:** `brew install ffmpeg`
-- **Windows:** Download the pre-compiled binary from the official site and add it to your PATH, or use `winget install ffmpeg`.
-- Verify installation:
-  ```bash
-  ffmpeg -version
-  ```
+### A. Install Node.js
+This helps run the YTSync dashboard.
+1. Go to **[Node.js Official Website](https://nodejs.org)**.
+2. Download and install the version labeled **"LTS"** (Recommended for most users).
+3. Follow the installation wizard and click "Next" until it finishes.
 
-## Installation
+### B. Install yt-dlp (The Downloader)
+This acts as the engine that actually downloads the videos.
+- **If you use macOS:**  
+  Open the "Terminal" app and type this, then press Enter:  
+  `brew install yt-dlp`  
+  *(Note: If it says "command not found: brew", you need to install Homebrew first. Search "Install Homebrew Mac" online for simple instructions.)*
+- **If you use Windows:**  
+  Open "Command Prompt" and type this, then press Enter:  
+  `winget install yt-dlp`
 
-1. Clone or download this repository to your local machine.
-2. Open a terminal (macOS/Linux) or Command Prompt/PowerShell (Windows).
-3. Navigate to the project directory:
-   ```bash
-   cd "path/to/YTSync"
-   ```
-4. Install the required Node.js dependencies (Express and WebSockets):
-   ```bash
-   npm install express ws
-   ```
+### C. Install FFmpeg (The Audio Converter)
+This takes the video and turns it into an MP3 file.
+- **If you use macOS:**  
+  Open "Terminal" and type:  
+  `brew install ffmpeg`
+- **If you use Windows:**  
+  Open "Command Prompt" and type:  
+  `winget install ffmpeg`
 
-## Usage
+---
 
-1. Start the YTSync server by running:
-   ```bash
-   npm start
-   ```
-   Or alternatively:
-   ```bash
-   node server.js
-   ```
-2. The terminal will display that the dashboard is running. Open your web browser and navigate to:
-   `http://localhost:3000`
+##  Step 2: How to start YTSync
 
-### Accessing the Dashboard
-- **Dashboard Tab:** Paste your target YouTube Playlist URL (ensure it includes `list=...`), and click "Sync Playlist". Review the playlist metadata and begin the download.
-- **Downloads Tab:** View all successfully downloaded and converted MP3s. The files will be grouped by their respective playlist folders.
-- **Settings Tab:** Configure global application parameters:
-  - **Download Directory:** Define where your MP3s should be saved. Selecting "Change" will prompt your operating system's native folder dialog.
-  - **Download Defaults:** Set maximum speeds (e.g., 2 MB/s to prevent rate limits) and target audio bitrates.
-  - **Data Management:** Utilize "Clear App Data" to remove temporary `.log` files and reset download state histories. This will never delete your MP3 files.
+Whenever you want to download music, follow these steps:
 
-## Technical Notes
-- **State Storage:** YTSync uses a `.yt-mp3-data` hidden folder inside the application directory to store state files (`settings.json`, temporary logs, and `_archive.txt` files). Discarding this folder will wipe the application's memory of what has been downloaded, causing it to re-parse playlists from scratch.
-- **Output Structure:** By default, files are segmented into hierarchical folders based on the Playlist's title. Track numbers and track names are automatically prefixed to the MP3 files.
-- **Concurrency & Rate Limits:** To prevent HTTP 429 Too Many Requests errors from YouTube, the default sleep interval between requests is set to 3 to 8 seconds. This is a crucial safety measure when processing playlists containing hundreds of videos.
+1. **Open your Terminal (macOS) or Command Prompt (Windows).**
+2. **Navigate to the YTSync folder.**  
+   Type `cd ` (don't forget the space!), then drag and drop the `YTSync` folder from your computer into the terminal window, and press Enter.
+3. **Install the connection tools (Only needed the first time):**  
+   Type `npm install` and press Enter.
+4. **Start the app!**  
+   Type `npm start` and press Enter. 
+   *(Do not close this black window while you are downloading music!)*
+5. **Open the Dashboard:**  
+   Open your regular web browser (Chrome, Safari, etc.) and type this into the address bar:  
+   **`http://localhost:3000`**
+
+---
+
+##  Step 3: Downloading your Music
+
+Once you are on the YTSync website (`http://localhost:3000`), downloading is easy!
+
+1. Go to YouTube and copy the link (URL) of the playlist you want.
+2. Paste the link into the **"Sync New Playlist"** box.
+3. Click the **"Sync Playlist"** button. The app will read the playlist and tell you how many songs are in it.
+4. Click **"Start"**. 
+5. Watch the dashboard as it downloads your music! You can see the progress ring fill up and monitor the speed.
+
+### Useful Tips
+- **Where did my music go?**  
+  Click on the **"Settings"** tab on the left side. Under "Storage & Location", click "**Change**" to choose the exact folder on your computer where you want the MP3s to appear.
+- **Failed Tracks:**  
+  Sometimes YouTube blocks a video because of copyright or age restrictions. Don't worry! Click the **"Failed"** tab on the left side to see which songs were missed, and click the **"Retry All Failed"** button at the top to try downloading them again.
+- **Dark Mode:**  
+  Click the little sun/moon icon at the top right of the dashboard to change the color scheme!
+
+---
+
+*Enjoy your music!*
