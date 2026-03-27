@@ -1,344 +1,184 @@
-#  YTSync  YouTube Playlist to MP3 Converter
+# YTSync
 
-> Download entire YouTube playlists as high-quality MP3 files, with a live dashboard, smart resume, and zero duplicate downloads.
-
----
-
-##  Table of Contents
-
-1. [What is YTSync?](#what-is-ytsync)
-2. [Before You Begin  System Requirements](#before-you-begin--system-requirements)
-3. [Step 1  Install the Requirements](#step-1--install-the-requirements)
-   - [A. Install Node.js](#a-install-nodejs)
-   - [B. Install yt-dlp](#b-install-yt-dlp-the-downloader)
-   - [C. Install FFmpeg](#c-install-ffmpeg-the-audio-converter)
-   - [D. Verify Your Installation](#d-verify-your-installation-recommended)
-4. [Step 2  Start YTSync for the First Time](#step-2--start-ytsync-for-the-first-time)
-5. [Step 3  Download Your Music](#step-3--download-your-music)
-6. [Understanding the Dashboard](#understanding-the-dashboard)
-7. [Settings & Customization](#settings--customization)
-8. [Troubleshooting Common Problems](#troubleshooting-common-problems)
-9. [Frequently Asked Questions](#frequently-asked-questions)
+Download entire YouTube playlists as MP3s. Runs locally, resumes on crash, skips already-downloaded tracks, and ships with a real-time web dashboard.
 
 ---
 
-## What is YTSync?
+## Requirements
 
-YTSync is a tool that runs on your own computer and lets you download entire YouTube playlists and save them as MP3 audio files. Instead of downloading one song at a time, you just paste a playlist link and YTSync handles everything automatically.
+- **Node.js** ≥ 18 — [nodejs.org](https://nodejs.org) (download the LTS version)
+- **yt-dlp** — the actual downloader
+- **ffmpeg** — handles audio conversion
 
-### What makes YTSync different?
+### Install yt-dlp + ffmpeg
 
-| Feature | What it means for you |
-|---|---|
-| **Live Dashboard** | Watch each download happen in real-time, with a progress ring and speed meter |
-| **Smart Resume** | If your internet cuts out or you close the app, it picks up exactly where it left off  no re-downloading |
-| **No Duplicates** | Already downloaded a song? YTSync remembers and skips it automatically |
-| **Safe from Blocks** | Automatically pauses between downloads so YouTube doesn't flag or block your activity |
-| **Choose Your Folder** | Save your music wherever you want on your computer |
-| **Handles Failures Gracefully** | Songs blocked by copyright or age restrictions are logged separately so you can retry them later |
-
----
-
-## Before You Begin  System Requirements
-
-YTSync works on both **Windows** and **macOS**. You'll need:
-
-- A computer running **Windows 10/11** or **macOS 11 (Big Sur)** or newer
-- A stable internet connection
-- About **200 MB of free disk space** for the app itself (plus space for your music)
-- A modern web browser (Chrome, Firefox, Safari, Edge  any of these will work)
-
->  **You do NOT need any programming experience.** Just follow each step carefully. The setup is a one-time process  after that, starting the app takes about 10 seconds.
-
----
-
-## Step 1  Install the Requirements
-
-YTSync depends on three tools to work. Think of them as the engine parts that make everything run. You only install these **once**.
-
-| Tool | What it does |
-|---|---|
-| **Node.js** | Runs the YTSync dashboard (the website you'll interact with) |
-| **yt-dlp** | The actual downloader  fetches videos from YouTube |
-| **FFmpeg** | Converts the downloaded video into a clean MP3 audio file |
-
----
-
-### A. Install Node.js
-
-Node.js is a free, open-source tool used by millions of apps worldwide.
-
-#### On Windows:
-1. Open your browser and go to **[https://nodejs.org](https://nodejs.org)**
-2. You will see two download buttons. Click the one labeled **"LTS"** (it says "Recommended For Most Users" underneath).
-3. Once the file downloads, open it to start the installer.
-4. Click **Next** on every screen  the default options are all correct.
-5. When the final screen says "Finish", you're done.
-
-#### On macOS:
-1. Open your browser and go to **[https://nodejs.org](https://nodejs.org)**
-2. Click the **"LTS"** download button. It will download a `.pkg` file.
-3. Open the downloaded file and follow the installer. Click **Continue** and **Install** when prompted.
-4. You may be asked to enter your Mac password  this is normal and required.
-
->  **How to confirm it worked:** Open Terminal (macOS) or Command Prompt (Windows), type `node --version`, and press Enter. You should see a version number like `v20.11.0`. If you do, Node.js is installed correctly.
-
----
-
-### B. Install yt-dlp (The Downloader)
-
-yt-dlp is the tool that actually talks to YouTube and fetches the audio.
-
-#### On Windows:
-1. Press the **Windows key**, type **"Command Prompt"**, and press Enter to open it.
-2. Type the following command and press **Enter**:
-   ```
-   winget install yt-dlp
-   ```
-3. Wait for the installation to complete. You will see a success message.
-
->  **If `winget` gives an error:** Your version of Windows may not have it. Download yt-dlp manually from **[https://github.com/yt-dlp/yt-dlp/releases](https://github.com/yt-dlp/yt-dlp/releases)**  download the file named `yt-dlp.exe` and place it in your `C:\Windows\System32` folder.
-
-#### On macOS:
-1. Open the **Terminal** app. (Press `Cmd + Space`, type "Terminal", and hit Enter.)
-2. Type the following command and press **Enter**:
-   ```
-   brew install yt-dlp
-   ```
-3. Wait for it to finish.
-
->  **If you see "command not found: brew":** You need to install Homebrew first. Go to **[https://brew.sh](https://brew.sh)**, copy the install command shown on that page, paste it into Terminal, and press Enter. Once Homebrew installs, run `brew install yt-dlp` again.
-
->  **How to confirm it worked:** Type `yt-dlp --version` and press Enter. You should see a version number.
-
----
-
-### C. Install FFmpeg (The Audio Converter)
-
-FFmpeg converts the downloaded file into a proper MP3. Without it, you'd end up with a video file instead of audio.
-
-#### On Windows:
-1. In **Command Prompt**, type the following and press **Enter**:
-   ```
-   winget install ffmpeg
-   ```
-2. Wait for the installation to finish.
-
-#### On macOS:
-1. In **Terminal**, type the following and press **Enter**:
-   ```
-   brew install ffmpeg
-   ```
-2. This may take a few minutes as FFmpeg is a larger package.
-
->  **How to confirm it worked:** Type `ffmpeg -version` and press Enter. You should see several lines of version information.
-
----
-
-### D. Verify Your Installation (Recommended)
-
-Before moving on, it's a good idea to confirm all three tools are installed correctly. Open your Terminal or Command Prompt and run these three commands one by one:
-
+**macOS**
+```bash
+brew install yt-dlp ffmpeg
 ```
+No Homebrew? Install it first: [brew.sh](https://brew.sh)
+
+**Windows**
+```bash
+winget install yt-dlp
+winget install ffmpeg
+```
+If `winget` isn't available, grab `yt-dlp.exe` from the [releases page](https://github.com/yt-dlp/yt-dlp/releases) and drop it in `C:\Windows\System32`.
+
+**Verify everything is in place:**
+```bash
 node --version
 yt-dlp --version
 ffmpeg -version
 ```
-
-Each command should print a version number (not an error). If all three work, you're ready to move on. 
+All three should print version numbers, not errors.
 
 ---
 
-## Step 2  Start YTSync for the First Time
+## Installation
 
-Follow these steps carefully. After the first time, starting the app is much faster (just steps 1, 2, and 4).
-
-### Step-by-step:
-
-**1. Open your terminal:**
-- **macOS:** Press `Cmd + Space`, type "Terminal", and press Enter.
-- **Windows:** Press the Windows key, type "Command Prompt", and press Enter.
-
-**2. Navigate to the YTSync folder:**
-
-You need to tell the terminal where the YTSync folder is. The easiest way:
-- Type `cd ` (that's `cd` followed by a single space  don't press Enter yet)
-- Now **drag and drop** the `YTSync` folder from your file manager directly into the terminal window
-- The folder path will be filled in automatically
-- Press **Enter**
-
->  Alternatively, if you know the path, you can type it directly. For example: `cd /Users/YourName/Downloads/YTSync` on Mac, or `cd C:\Users\YourName\Downloads\YTSync` on Windows.
-
-**3. Install dependencies (First time only):**
-
-Type this and press **Enter**:
-```
+```bash
+git clone <repo-url>
+cd ytsync
 npm install
 ```
 
-This downloads the extra libraries that YTSync needs to run. You will see a lot of text scroll by  this is normal. Wait until it stops and you see your cursor again. This usually takes 30–60 seconds.
+`npm install` only needs to run once. After that, skip straight to `npm start`.
 
->  **You only need to do this once.** Next time you start YTSync, you can skip straight to step 4.
+---
 
-**4. Start the app:**
+## Running the App
 
-Type this and press **Enter**:
-```
+```bash
 npm start
 ```
 
-You should see a message like:
+Open `http://localhost:3000` in your browser. The terminal window must stay open while downloads are running — minimizing it is fine, closing it stops everything.
+
+---
+
+## Downloading a Playlist
+
+1. Go to YouTube, open the playlist, and copy the URL from the address bar.
+   It should contain `playlist?list=` — if it just says `watch?v=`, that's a single video.
+
+2. Paste the URL into the **Sync New Playlist** field and click **Sync Playlist**.
+   YTSync fetches the playlist metadata and shows you the total track count and how many are already downloaded.
+
+3. Click **Start**. Downloads begin immediately.
+
+Progress, speed, and per-track status update live in the dashboard.
+
+### Advanced Options
+
+Click **Advanced options** under the URL field to expand:
+
+| Option | Default | Description |
+|--------|---------|-------------|
+| Quality | 320 kbps | Audio bitrate for the output MP3 |
+| Speed Limit | 2 MB/s | Per-file download cap. Set to "No limit" to remove it |
+| Start From | — | Skip to a specific track number in the playlist |
+| End At | — | Stop after this track number |
+| Browser Cookies | Disabled | Pass your browser session to bypass age restrictions or "Video unavailable" blocks |
+
+---
+
+## Resuming After Interruption
+
+YTSync writes a per-playlist archive file that tracks every downloaded video. If the process stops for any reason — network drop, app crash, manual stop — just run `npm start` again and click **Start** on the same playlist. Already-downloaded tracks are skipped automatically.
+
+---
+
+## Failed Downloads
+
+Some videos can't be downloaded: deleted videos, region blocks, copyright claims, or age restrictions without cookies enabled. These show up under the **Failed** tab with a reason for each failure.
+
+Click **Retry All Failed** to attempt them again. If a track keeps failing after retries, it's either permanently blocked or no longer available.
+
+---
+
+## Changing the Output Folder
+
+By default, MP3s are saved to `~/Downloads/YTSync`. To change it:
+
+- Go to **Settings → Storage & Location → Change**
+- Pick any folder on your computer
+
+All subsequent downloads will go there. The change persists across restarts.
+
+---
+
+## Bash Script (Headless / Server Use)
+
+If you don't need the dashboard, `yt-playlist-mp3.sh` handles everything from the terminal:
+
+```bash
+# Download a full playlist
+./yt-playlist-mp3.sh "https://youtube.com/playlist?list=PLxxxxx"
+
+# Download a specific range of tracks
+./yt-playlist-mp3.sh --range 50 150 "https://..."
+
+# Check how many tracks have been downloaded
+./yt-playlist-mp3.sh --status "https://..."
+
+# Retry previously failed videos
+./yt-playlist-mp3.sh --retry-failed "https://..."
+
+# List playlist contents without downloading anything
+./yt-playlist-mp3.sh --dry-run "https://..."
+
+# Run in background with tmux
+tmux new -s downloads './yt-playlist-mp3.sh "https://..."'
 ```
- YTSync is running at http://localhost:3000
+
+All the same resume and deduplication logic applies.
+
+---
+
+## Common Issues
+
+**`npm: command not found`**
+Node.js isn't installed or the terminal hasn't picked it up yet. Close and reopen the terminal, then run `node --version`. If that still fails, reinstall Node from [nodejs.org](https://nodejs.org).
+
+**Dashboard doesn't load at `localhost:3000`**
+Make sure the terminal running `npm start` is still open and shows no errors. Also check you're using `http://` not `https://`.
+
+**`yt-dlp: command not found` error in the dashboard**
+yt-dlp isn't on your PATH. Reinstall it and verify with `yt-dlp --version` in a fresh terminal.
+
+**Files download but won't play / no audio**
+ffmpeg is missing or not found. Run `ffmpeg -version` to check. Without it, the file stays as a video container instead of converting to MP3.
+
+**Most tracks fail with "Video unavailable"**
+YouTube rate-limited your IP. Wait 30–60 minutes. For persistent failures on age-restricted content, enable **Browser Cookies** in Settings and make sure the relevant browser is closed before starting.
+
+**App says it's running but no files appear**
+Check Settings → Storage & Location to confirm the output path. Make sure the destination folder exists and you have write permission to it.
+
+---
+
+## File Layout
+
+```
+ytsync/
+├── server.js
+├── public/
+│   └── index.html
+├── yt-playlist-mp3.sh
+└── .yt-mp3-data/
+    ├── settings.json
+    ├── {playlist_id}_archive.txt
+    └── {playlist_id}_download.log
 ```
 
->  **Important:** Do NOT close this terminal window while you are downloading music. The app runs inside it. Minimizing it is fine  just don't close it.
-
-**5. Open the dashboard in your browser:**
-
-Open Chrome, Safari, Firefox, or any browser, click the address bar at the top, type:
-```
-http://localhost:3000
-```
-...and press **Enter**. The YTSync dashboard will load.
+The `.yt-mp3-data/` directory is created automatically on first run. Don't delete the archive files unless you want YTSync to re-download everything from scratch. The **Settings → Clear App Data** button does this safely.
 
 ---
 
-## Step 3  Download Your Music
+## Notes
 
-Once the dashboard is open, downloading a playlist is simple.
-
-**1. Get your playlist link from YouTube:**
-- Go to [youtube.com](https://youtube.com) and find the playlist you want.
-- Click on the playlist title to open it.
-- Copy the URL from your browser's address bar. It should look something like:
-  `https://www.youtube.com/playlist?list=PLxxxxxxxxxxxxxxxx`
-
->  **Tip:** Make sure the URL contains `playlist?list=`  if it just says `watch?v=`, that's a single video, not a playlist.
-
-**2. Paste the link into YTSync:**
-- On the dashboard, find the box labeled **"Sync New Playlist"**.
-- Click inside the box and paste your copied link (`Ctrl+V` on Windows, `Cmd+V` on Mac).
-
-**3. Read the playlist:**
-- Click the **"Sync Playlist"** button.
-- YTSync will read the playlist from YouTube and display the total number of songs it found. This usually takes 5–15 seconds.
-
-**4. Start downloading:**
-- Click the **"Start"** button.
-- The dashboard will begin downloading and converting your songs one by one.
-- You can see a **progress ring** filling up for the current song, the download speed, and a count of how many songs are done.
-
-**5. Wait for it to finish:**
-- YTSync automatically pauses briefly between songs to stay safe from blocks.
-- When all songs are complete, you will see a "Done" status on the dashboard.
-- Your MP3 files are now saved in the output folder (see the tip below to choose where).
-
->  **Where did my music go?** By default, a folder called `downloads` is created inside the YTSync app folder. To change this to any folder on your computer, go to the **Settings** tab (see next section).
-
----
-
-## Understanding the Dashboard
-
-Here's a quick guide to what you'll see on the dashboard:
-
-| Element | What it shows |
-|---|---|
-| **Progress Ring** | The circular animation shows how much of the current song has downloaded |
-| **Speed Meter** | Shows your current download speed (e.g., `1.2 MB/s`) |
-| **Song Counter** | Shows `X of Y done`  how many songs have been successfully downloaded so far |
-| **Queue** | Lists the songs waiting to be downloaded |
-| **Failed Tab** | Songs that couldn't be downloaded (copyright blocks, deleted videos, etc.) |
-| **Sun/Moon Icon** | Toggles between light mode and dark mode |
-
----
-
-## Settings & Customization
-
-Click the **"Settings"** tab on the left sidebar to access these options:
-
-### Storage & Location
-- **Change Output Folder:** Click **"Change"** under "Storage & Location" to open a folder picker. Navigate to wherever you want your MP3s saved and select it. From now on, all downloads will go there.
-
-### Handling Failed Downloads
-Sometimes a video can't be downloaded. Common reasons include:
-- The video is blocked in your country
-- The video has age restrictions
-- The video was deleted after the playlist was created
-- YouTube rate-limited the download
-
-**To retry failed downloads:**
-1. Click the **"Failed"** tab in the left sidebar
-2. You'll see a list of every song that didn't download, with a reason for each failure
-3. Click **"Retry All Failed"** at the top to attempt those songs again
-4. If a specific song keeps failing, it's likely permanently blocked and can't be downloaded
-
-### Resume After Interruption
-If the app closes unexpectedly or you lose internet:
-1. Simply start the app again (`npm start`) and open `http://localhost:3000`
-2. YTSync will detect the unfinished job and offer to resume it
-3. Songs already downloaded will be skipped automatically  it picks up from where it left off
-
----
-
-## Troubleshooting Common Problems
-
-** "npm: command not found" when running `npm start`**
-Node.js is not installed correctly, or your terminal hasn't refreshed. Try closing and reopening your terminal, then run `node --version` to confirm. If that also fails, reinstall Node.js from [nodejs.org](https://nodejs.org).
-
----
-
-** The dashboard doesn't load at `http://localhost:3000`**
-- Make sure you can still see your terminal window running `npm start`  it should not show any errors.
-- Make sure you typed the address correctly: `http://localhost:3000` (not `https://`).
-- Try a different browser.
-- Check that no other app is using port 3000. If so, close it and restart YTSync.
-
----
-
-** "yt-dlp: command not found" error in the dashboard**
-yt-dlp is either not installed or not added to your system's PATH. Reinstall it following the instructions in Step 1B. On Windows, make sure `yt-dlp.exe` is in `C:\Windows\System32` if the winget method didn't work.
-
----
-
-** Songs download but there's no audio / the file won't play**
-FFmpeg is likely not installed or not found. Without FFmpeg, the file can't be converted to MP3. Reinstall it following Step 1C, then verify it works by running `ffmpeg -version` in your terminal.
-
----
-
-** "This video is unavailable" for most songs**
-YouTube may have temporarily flagged your IP for too many requests. Wait 30–60 minutes before trying again. YTSync's built-in delay reduces this risk, but very large playlists (200+ songs) can still occasionally trigger it.
-
----
-
-**The app says it's downloading but no files appear in the folder**
-Double-check your output folder in **Settings → Storage & Location**. Make sure you have write permission to that folder (it's not on a read-only drive or a protected system folder).
-
----
-
-## Frequently Asked Questions
-
-**Q: Is YTSync free?**
-Yes, completely free and open-source.
-
-**Q: Can I download a single video instead of a playlist?**
-YTSync is optimized for playlists. For single videos, yt-dlp can be used directly from the terminal.
-
-**Q: Will this work for private or unlisted playlists?**
-Only if you are logged into YouTube in the same browser session and the playlist belongs to your account. Fully private playlists owned by other people cannot be downloaded.
-
-**Q: What audio quality are the MP3s?**
-By default, YTSync downloads the highest available audio quality YouTube offers and converts it to MP3. This is typically 128–192 kbps for most videos.
-
-**Q: Can I close my browser while it's downloading?**
-Yes! The downloads continue running in the background as long as the terminal window is still open. You can close and reopen your browser without affecting the downloads.
-
-**Q: Can I run multiple playlists at the same time?**
-It's recommended to run one playlist at a time. Starting a second playlist while one is in progress may cause conflicts.
-
-**Q: Do I need to run `npm install` every time?**
-No  only the very first time. After that, just `npm start` is enough.
-
----
-
-*YTSync is intended for personal, non-commercial use. Please respect copyright laws and the terms of service of the platforms you use.*
+- One playlist at a time. Running two simultaneous downloads against the same archive file will cause conflicts.
+- Private playlists work only if the owning account's browser cookies are passed via the cookies option.
+- The native folder picker (Settings → Change) is macOS and Windows only. On Linux, edit `.yt-mp3-data/settings.json` directly.
+- For personal, non-commercial use.
